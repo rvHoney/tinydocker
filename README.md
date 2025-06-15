@@ -1,4 +1,4 @@
-# 🐚 tinydocker
+# 🐟 tinydocker
 
 **tinydocker** is an educational project written in **C11**, designed to reproduce the core features of a Linux container from scratch, without using Docker.
 
@@ -19,7 +19,7 @@ make debug
 ## 🚀 Run
 
 ```bash
-sudo ./build/tinydocker
+sudo ./build/tinydocker [-h hostname] [-r rootfs] [-- command [args...]]
 ```
 
 ⚠️ Note: The `./rootfs` directory must exist alongside the binary when running the container,
@@ -99,8 +99,8 @@ Here is the planned progression for tinydocker:
 
 ### CLI & usability
 
-- 🔜 Add a CLI with argument parsing (container name, resources, image...)
-- 🔜 Add `--help` and error messages
+- 🛠️ Add a CLI with argument parsing (container name, resources, image...)
+- 🛠️ Add `--help` and error messages
 
 ### Multi-container & images
 
