@@ -12,7 +12,7 @@
 
 static char child_stack[STACK_SIZE];
 
-int child_func(void *arg)
+int init_container(void *arg)
 {
     (void)arg;
 
@@ -54,7 +54,7 @@ int child_func(void *arg)
 int main(void)
 {
     printf("🐚 Starting TinyDocker...\n");
-    pid_t pid = clone(child_func, child_stack + STACK_SIZE,
+    pid_t pid = clone(init_container, child_stack + STACK_SIZE,
                       CLONE_NEWUTS | CLONE_NEWNS | CLONE_NEWPID | CLONE_NEWIPC
                           | CLONE_NEWNET | SIGCHLD,
                       NULL);
