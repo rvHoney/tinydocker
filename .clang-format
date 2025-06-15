@@ -17,20 +17,20 @@ BinPackArguments: true
 BinPackParameters: true
 BreakBeforeBraces: Custom
 BraceWrapping:
-    AfterEnum: true
-    AfterClass: true
-    AfterControlStatement: true
-    AfterFunction: true
-    AfterNamespace: true
-    AfterStruct: true
-    AfterUnion: true
-    AfterExternBlock: true
-    BeforeCatch: true
-    BeforeElse: true
-    IndentBraces: false
-    SplitEmptyFunction: false
-    SplitEmptyRecord: false
-    SplitEmptyNamespace: false
+      AfterEnum: true
+      AfterClass: true
+      AfterControlStatement: true
+      AfterFunction: true
+      AfterNamespace: true
+      AfterStruct: true
+      AfterUnion: true
+      AfterExternBlock: true
+      BeforeCatch: true
+      BeforeElse: true
+      IndentBraces: false
+      SplitEmptyFunction: false
+      SplitEmptyRecord: false
+      SplitEmptyNamespace: false
 BreakBeforeBinaryOperators: NonAssignment
 BreakBeforeTernaryOperators: true
 BreakConstructorInitializers: BeforeComma
@@ -46,10 +46,10 @@ FixNamespaceComments: true
 ForEachMacros: ['ILIST_FOREACH', 'ILIST_FOREACH_ENTRY']
 IncludeBlocks: Regroup
 IncludeCategories:
-    - Regex: '<.*>'
-      Priority: 1
-    - Regex: '.*'
-      Priority: 2
+      - Regex: '<.*>'
+        Priority: 1
+      - Regex: '.*'
+        Priority: 2
 IndentCaseLabels: false
 IndentPPDirectives: AfterHash
 IndentWidth: 4
