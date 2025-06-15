@@ -19,7 +19,7 @@ make debug
 ## 🚀 Run
 
 ```bash
-sudo ./build/tinydocker rootfs/ /bin/sh
+sudo ./build/tinydocker
 ```
 
 ⚠️ Requires a Linux system with support for namespaces and cgroups (v1 or v2) and a minimal root filesystem inside the `rootfs/` directory (e.g., based on BusyBox).
@@ -67,11 +67,11 @@ Here is the planned progression for tinydocker:
 
 ### Core container logic
 
-- 🔜 Create a containerized process and namespace isolation
-- 🔜 Change hostname from inside the container
-- 🔜 Mount `/proc` inside the container
-- 🔜 Implement chroot to a minimal rootfs
-- 🔜 Execute `/bin/sh` using a new process
+- ✅ Create a containerized process and namespace isolation
+- ✅ Change hostname from inside the container
+- ✅ Mount `/proc` inside the container
+- ✅ Implement chroot to a minimal rootfs
+- ✅ Execute `/bin/sh` using a new process
 
 ### Resource control
 
