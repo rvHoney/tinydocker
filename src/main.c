@@ -12,26 +12,32 @@
 
 static char child_stack[STACK_SIZE];
 
+typedef struct
+{
+    char *hostname;
+    char *rootfs;
+    char **command;
+} ContainerArgs;
+
 int init_container(void *arg)
 {
-    (void)arg;
+    ContainerArgs *args = (ContainerArgs *)arg;
 
-    const char *name = "tinydocker";
-    printf("🔧 Setting hostname to '%s'\n", name);
-    if (sethostname(name, strlen(name)) == -1)
+    printf("🔧 Setting hostname to '%s'\n", args->hostname);
+    if (sethostname(args->hostname, strlen(args->hostname)) == -1)
     {
         perror("sethostname failed");
         return 1;
     }
 
     printf("🔒 Setting up namespaces...\n");
-    if (chroot("./rootfs") == -1)
+    if (chroot(args->rootfs) == -1)
     {
         perror("chroot failed");
         return 1;
     }
 
-    printf("📂 Changing root directory to './rootfs'\n");
+    printf("📂 Changing root directory to '/'...\n");
     if (chdir("/") == -1)
     {
         perror("chdir failed");
@@ -45,19 +51,88 @@ int init_container(void *arg)
         return 1;
     }
 
-    printf("🖥️ Starting shell in the container...\n");
-    execlp("/bin/sh", "sh", NULL);
-    perror("execlp failed");
-    return 1;
+    pid_t shell_pid = fork();
+    if (shell_pid == -1)
+    {
+        perror("fork");
+        return 1;
+    }
+
+    if (shell_pid == 0)
+    {
+        printf("🖥️ Starting shell in the container...\n");
+        execvp(args->command[0], args->command);
+        perror("execvp failed");
+        exit(1);
+    }
+    else
+    {
+        waitpid(shell_pid, NULL, 0);
+        printf("🧹 Unmounting /proc...\n");
+        if (umount("/proc") == -1)
+        {
+            perror("umount /proc");
+        }
+        return 0;
+    }
 }
 
-int main(void)
+int main(int argc, char *argv[])
 {
-    printf("🐚 Starting TinyDocker...\n");
+    ContainerArgs args = { .hostname = "tinydocker",
+                           .rootfs = "./rootfs",
+                           .command = (char *[]){ "/bin/sh", NULL } };
+
+    int i = 1;
+    int cmd_start = 0;
+    while (i < argc)
+    {
+        if (strcmp(argv[i], "--") == 0)
+        {
+            cmd_start = i + 1;
+            break;
+        }
+        else if (strcmp(argv[i], "-h") == 0 && i + 1 < argc)
+        {
+            args.hostname = argv[++i];
+        }
+        else if (strcmp(argv[i], "-r") == 0 && i + 1 < argc)
+        {
+            args.rootfs = argv[++i];
+        }
+        else
+        {
+            fprintf(
+                stderr,
+                "Usage: %s [-h hostname] [-r rootfs] -- command [args...]\n",
+                argv[0]);
+            exit(EXIT_FAILURE);
+        }
+        i++;
+    }
+
+    if (cmd_start > 0)
+    {
+        int cmd_argc = argc - cmd_start;
+        args.command = malloc((cmd_argc + 1) * sizeof(char *));
+        if (!args.command)
+        {
+            perror("malloc failed");
+            exit(EXIT_FAILURE);
+        }
+        for (int j = 0; j < cmd_argc; j++)
+        {
+            args.command[j] = argv[cmd_start + j];
+        }
+        args.command[cmd_argc] = NULL;
+    }
+
+    printf("🐟 Welcome to TinyDocker!\n");
+
     pid_t pid = clone(init_container, child_stack + STACK_SIZE,
                       CLONE_NEWUTS | CLONE_NEWNS | CLONE_NEWPID | CLONE_NEWIPC
                           | CLONE_NEWNET | SIGCHLD,
-                      NULL);
+                      &args);
 
     if (pid == -1)
     {
