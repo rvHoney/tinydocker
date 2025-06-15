@@ -37,7 +37,7 @@ int init_container(void *arg)
         return 1;
     }
 
-    printf("📂 Changing root directory to '/'...\n");
+    printf("📂 Changing root directory to '%s'\n", args->rootfs);
     if (chdir("/") == -1)
     {
         perror("chdir failed");
@@ -83,22 +83,22 @@ int main(int argc, char *argv[])
                            .rootfs = "./rootfs",
                            .command = (char *[]){ "/bin/sh", NULL } };
 
-    int i = 1;
-    int cmd_start = 0;
-    while (i < argc)
+    int current_arg = 1;
+    int command_offset = 0;
+    while (current_arg < argc)
     {
-        if (strcmp(argv[i], "--") == 0)
+        if (strcmp(argv[current_arg], "--") == 0)
         {
-            cmd_start = i + 1;
+            command_offset = current_arg + 1;
             break;
         }
-        else if (strcmp(argv[i], "-h") == 0 && i + 1 < argc)
+        else if (strcmp(argv[current_arg], "-h") == 0 && current_arg + 1 < argc)
         {
-            args.hostname = argv[++i];
+            args.hostname = argv[++current_arg];
         }
-        else if (strcmp(argv[i], "-r") == 0 && i + 1 < argc)
+        else if (strcmp(argv[current_arg], "-r") == 0 && current_arg + 1 < argc)
         {
-            args.rootfs = argv[++i];
+            args.rootfs = argv[++current_arg];
         }
         else
         {
@@ -108,12 +108,12 @@ int main(int argc, char *argv[])
                 argv[0]);
             exit(EXIT_FAILURE);
         }
-        i++;
+        current_arg++;
     }
 
-    if (cmd_start > 0)
+    if (command_offset > 0)
     {
-        int cmd_argc = argc - cmd_start;
+        int cmd_argc = argc - command_offset;
         args.command = malloc((cmd_argc + 1) * sizeof(char *));
         if (!args.command)
         {
@@ -122,7 +122,7 @@ int main(int argc, char *argv[])
         }
         for (int j = 0; j < cmd_argc; j++)
         {
-            args.command[j] = argv[cmd_start + j];
+            args.command[j] = argv[command_offset + j];
         }
         args.command[cmd_argc] = NULL;
     }
