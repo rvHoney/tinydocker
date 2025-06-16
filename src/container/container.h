@@ -14,7 +14,6 @@ typedef struct
     int max_cpus;
     long max_memory;
     char **process;
-    char **process_args;
 } ContainerArgs;
 
 /**

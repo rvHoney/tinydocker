@@ -68,7 +68,7 @@ int parse_args(int argc, char *argv[], ContainerArgs *args)
             args->rootfs = optarg;
             break;
         case 'c':
-            args->max_cpus = atoi(optarg);
+            args->max_cpus = strtol(optarg, NULL, 10);
             if (args->max_cpus <= 0)
             {
                 fprintf(stderr, "Error: CPU count must be positive\n");

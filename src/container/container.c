@@ -51,13 +51,45 @@ int init_container(void *arg)
         return EXIT_FAILURE;
     }
 
-    // Execute the command
-    if (execvp(args->process[0], args->process) != 0)
+    // Fork to handle unmounting
+    pid_t pid = fork();
+    if (pid < 0)
     {
-        fprintf(stderr, "Failed to execute %s: %s\n", args->process[0],
-                strerror(errno));
+        perror("fork");
+        if (umount2("/proc", MNT_DETACH) != 0)
+        {
+            perror("umount2 /proc");
+        }
         return EXIT_FAILURE;
     }
 
-    return EXIT_SUCCESS;
+    if (pid == 0)
+    {
+        // Child process - execute the command
+        if (execvp(args->process[0], args->process) != 0)
+        {
+            fprintf(stderr, "Failed to execute %s: %s\n", args->process[0],
+                    strerror(errno));
+            if (umount2("/proc", MNT_DETACH) != 0)
+            {
+                perror("umount2 /proc");
+            }
+            return EXIT_FAILURE;
+        }
+        return EXIT_SUCCESS;
+    }
+    else
+    {
+        // Parent process - wait for child and unmount
+        int status;
+        waitpid(pid, &status, 0);
+
+        // Unmount /proc after child process ends
+        if (umount2("/proc", MNT_DETACH) != 0)
+        {
+            perror("umount2 /proc");
+        }
+
+        return WIFEXITED(status) ? WEXITSTATUS(status) : EXIT_FAILURE;
+    }
 }
