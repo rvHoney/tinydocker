@@ -11,7 +11,7 @@ typedef struct
 {
     char *hostname;
     char *rootfs;
-    char **command;
+    char **process;
     int max_cpus;
     long max_memory; // in bytes
 } ContainerArgs;
