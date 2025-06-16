@@ -30,7 +30,7 @@ A minimal container runtime implementation for educational purposes. This projec
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/tinydocker.git
+git clone https://github.com/rvHoney/tinydocker.git
 cd tinydocker
 
 # Build the project
