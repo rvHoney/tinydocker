@@ -5,7 +5,7 @@
 This project implements:
 
 - Create and isolate a containerized process with its own file system, network, and process namespace
-- Limite RAM and CPU usage for the container
+- Limit RAM and CPU usage for the container
 
 ## Build
 
@@ -16,7 +16,7 @@ make debug
 ## Run
 
 ```bash
-sudo ./build/tinydocker [-h hostname] [-r rootfs] [-- command [args...]]
+sudo ./build/tinydocker [-h hostname] [-r rootfs] [--cpus num] [--memory size] [-- command [args...]]
 ```
 
 ⚠️ Note: The `./rootfs` directory must exist alongside the binary when running the container,
