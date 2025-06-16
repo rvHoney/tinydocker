@@ -16,7 +16,7 @@ make debug
 ## Run
 
 ```bash
-sudo ./build/tinydocker [-h hostname] [-r rootfs] [--cpus num] [--memory size] [-- command [args...]]
+sudo ./build/bin/tinydocker [-h hostname] [-r rootfs] [--cpus num] [--memory size] [-- command [args...]]
 ```
 
 ⚠️ Note: The `./rootfs` directory must exist alongside the binary when running the container,
