@@ -4,22 +4,19 @@
 
 This project implements:
 
-- Process creation using `clone()` and isolation via **Linux namespaces**:
-- Mounting `/proc` inside the container
-- Changing the root filesystem using `chroot()` or `pivot_root()`
-- Executing an isolated shell (`/bin/sh`)
-- Creating and configuring a minimal **cgroup** (CPU or memory limitation)
+- Create and isolate a containerized process with its own file system, network, and process namespace
+- Limit RAM and CPU usage for the container
 
-## 📦 Build
+## Build
 
 ```bash
 make debug
 ```
 
-## 🚀 Run
+## Run
 
 ```bash
-sudo ./build/tinydocker [-h hostname] [-r rootfs] [-- command [args...]]
+sudo ./build/tinydocker [-h hostname] [-r rootfs] [--cpus num] [--memory size] [-- command [args...]]
 ```
 
 ⚠️ Note: The `./rootfs` directory must exist alongside the binary when running the container,
@@ -28,7 +25,7 @@ Future versions may allow specifying a custom rootfs path via command-line optio
 
 > Requires a Linux system with support for namespaces and cgroups (v1 or v2) and a minimal root filesystem inside the `rootfs/` directory (e.g., based on BusyBox).
 
-## 📁 Project structure
+## Project structure
 
 ``` plaintext
 tinydocker/
@@ -41,7 +38,7 @@ tinydocker/
 └── README.md # This file
 ```
 
-## 🎯 Project goals
+## Project goals
 
 - Learn how Linux containers work under the hood
 - Experiment with namespaces, cgroups, and process isolation
@@ -51,7 +48,7 @@ tinydocker/
 
 ---
 
-## ⚠️ Work in progress
+## Work in progress
 
 This project is a **work in progress** and its internal structure will evolve significantly over time.
 
@@ -63,7 +60,7 @@ Expect:
 
 Feel free to explore, but don’t rely on stability just yet.
 
-## 🗺️ Roadmap
+## Roadmap
 
 Here is the planned progression for tinydocker:
 
@@ -79,8 +76,8 @@ Here is the planned progression for tinydocker:
 
 ### Resource control
 
-- 🔜 Create and apply a cgroup to limit memory/CPU
-- 🔜 Improve cgroup abstraction (modular code)
+- ✅ Create and apply a cgroup to limit memory/CPU
+- 🛠 Improve cgroup abstraction (modular code)
 
 ### Networking
 
