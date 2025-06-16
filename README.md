@@ -1,4 +1,4 @@
-# 🐟 TinyDocker
+# 🐟 tinydocker
 
 A minimal container runtime implementation for educational purposes. This project demonstrates the core concepts of containerization by implementing a simple container runtime using Linux namespaces and cgroups.
 
@@ -71,7 +71,7 @@ Examples:
 
 ## How It Works
 
-TinyDocker uses Linux namespaces and cgroups to create isolated containers:
+tinydocker uses Linux namespaces and cgroups to create isolated containers:
 
 - **Namespaces**: Provides isolation for:
   - UTS: Hostname and domain name
@@ -148,4 +148,4 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE](https://github.com/rvHoney/tinydocker/blob/main/LICENSE) file for details.

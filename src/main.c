@@ -1,3 +1,8 @@
+/**
+ * @file main.c
+ * @brief Main program entry point
+ */
+
 #define _GNU_SOURCE
 #include <errno.h>
 #include <sched.h>
@@ -19,8 +24,24 @@
 #    define VERSION "?.?.?"
 #endif
 
+/** @brief Exit code for terminal process group errors */
 #define TTY_PG_FATAL_ERROR 2
 
+/**
+ * @brief Main program entry point
+ *
+ * The main function:
+ * 1. Parses command-line arguments
+ * 2. Validates the root filesystem
+ * 3. Creates a new container using clone
+ * 4. Sets up cgroup limits
+ * 5. Waits for the container to finish
+ * 6. Cleans up resources
+ *
+ * @param argc Number of command-line arguments
+ * @param argv Array of command-line argument strings
+ * @return EXIT_SUCCESS on success, EXIT_FAILURE on failure
+ */
 int main(int argc, char *argv[])
 {
     ContainerArgs args;
