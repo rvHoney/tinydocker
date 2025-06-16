@@ -11,6 +11,7 @@
 #include <unistd.h>
 
 #include "cgroup/cgroup.h"
+#include "cli/cli.h"
 #include "container/container.h"
 
 #ifndef VERSION
@@ -19,16 +20,12 @@
 
 int main(int argc, char *argv[])
 {
-    (void)argc;
-    (void)argv;
+    ContainerArgs args;
 
-    ContainerArgs args = {
-        .hostname = "tinydocker",
-        .rootfs = "./rootfs",
-        .process = (char *[]){ "/bin/sh", NULL },
-        .max_cpus = 1, // 100% of one core
-        .max_memory = 1024 * 1024 * 1024 // 1 GB
-    };
+    if (parse_args(argc, argv, &args) == EXIT_FAILURE)
+    {
+        return EXIT_FAILURE;
+    }
 
     printf("🐟  tinydocker v%s\n\n", VERSION);
     printf("📦  Container config:\n");
@@ -47,7 +44,20 @@ int main(int argc, char *argv[])
 
     if (pid == -1)
     {
-        perror("clone");
+        if (errno == EPERM)
+        {
+            fprintf(stderr,
+                    "Error: Operation not permitted. This program requires "
+                    "root privileges.\n");
+            fprintf(stderr,
+                    "Please run with sudo: sudo %s [OPTIONS] -- COMMAND "
+                    "[ARGS...]\n",
+                    argv[0]);
+        }
+        else
+        {
+            perror("clone");
+        }
         return EXIT_FAILURE;
     }
 
