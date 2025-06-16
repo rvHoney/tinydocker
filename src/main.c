@@ -19,6 +19,8 @@
 #    define VERSION "?.?.?"
 #endif
 
+#define TTY_PG_FATAL_ERROR 2
+
 int main(int argc, char *argv[])
 {
     ContainerArgs args;
@@ -40,7 +42,8 @@ int main(int argc, char *argv[])
     struct stat st;
     if (stat(args.rootfs, &st) != 0)
     {
-        fprintf(stderr, "Error: Root filesystem '%s' not found\n", args.rootfs);
+        fprintf(stderr, "Error: Root filesystem '%s' not found: %s\n",
+                args.rootfs, strerror(errno));
         fprintf(stderr,
                 "Please create a root filesystem directory or specify a "
                 "different path with -r\n");
@@ -73,7 +76,7 @@ int main(int argc, char *argv[])
         }
         else
         {
-            perror("clone");
+            fprintf(stderr, "Error: clone failed: %s\n", strerror(errno));
         }
         return EXIT_FAILURE;
     }
@@ -85,14 +88,15 @@ int main(int argc, char *argv[])
         cgroup_create("tinydocker", args.max_cpus, args.max_memory);
     if (!cgroup)
     {
-        perror("cgroup_create");
+        fprintf(stderr, "Error: cgroup creation failed: %s\n", strerror(errno));
         kill(pid, SIGKILL);
         return EXIT_FAILURE;
     }
 
     if (cgroup_apply_limits(cgroup) == EXIT_FAILURE)
     {
-        perror("cgroup_apply_limits");
+        fprintf(stderr, "Error: cgroup limits application failed: %s\n",
+                strerror(errno));
         cgroup_free(cgroup);
         kill(pid, SIGKILL);
         return EXIT_FAILURE;
@@ -100,7 +104,8 @@ int main(int argc, char *argv[])
 
     if (cgroup_add_process(cgroup, pid) == EXIT_FAILURE)
     {
-        perror("cgroup_add_process");
+        fprintf(stderr, "Error: cgroup process addition failed: %s\n",
+                strerror(errno));
         cgroup_free(cgroup);
         kill(pid, SIGKILL);
         return EXIT_FAILURE;
@@ -109,7 +114,8 @@ int main(int argc, char *argv[])
     int status;
     if (waitpid(pid, &status, 0) == -1)
     {
-        perror("waitpid");
+        fprintf(stderr, "Error: container process wait failed: %s\n",
+                strerror(errno));
         cgroup_free(cgroup);
         return EXIT_FAILURE;
     }
@@ -118,21 +124,22 @@ int main(int argc, char *argv[])
     {
         int exit_code = WEXITSTATUS(status);
         // Ignore the tty process group error (exit code 2)
-        if (exit_code != EXIT_SUCCESS && exit_code != 2)
+        if (exit_code != EXIT_SUCCESS && exit_code != TTY_PG_FATAL_ERROR)
         {
-            fprintf(stderr, "Container process exited with code %d\n",
+            fprintf(stderr, "Error: Container process exited with code %d\n",
                     exit_code);
         }
     }
     else if (WIFSIGNALED(status))
     {
-        fprintf(stderr, "Container process was killed by signal %d\n",
+        fprintf(stderr, "Error: Container process was killed by signal %d\n",
                 WTERMSIG(status));
     }
 
     if (cgroup_destroy(cgroup) == EXIT_FAILURE)
     {
-        perror("cgroup_destroy");
+        fprintf(stderr, "Error: cgroup destruction failed: %s\n",
+                strerror(errno));
         cgroup_free(cgroup);
         return EXIT_FAILURE;
     }

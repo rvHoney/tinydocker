@@ -1,4 +1,3 @@
-#define _GNU_SOURCE
 #include "cgroup.h"
 
 #include <errno.h>
@@ -17,14 +16,14 @@ CGroup *cgroup_create(const char *name, int max_cpus, long max_memory)
     CGroup *cgroup = malloc(sizeof(CGroup));
     if (!cgroup)
     {
-        perror("malloc");
+        fprintf(stderr, "Error: malloc failed: %s\n", strerror(errno));
         return NULL;
     }
 
     cgroup->name = strdup(name);
     if (!cgroup->name)
     {
-        perror("strdup");
+        fprintf(stderr, "Error: strdup failed: %s\n", strerror(errno));
         free(cgroup);
         return NULL;
     }
@@ -33,7 +32,7 @@ CGroup *cgroup_create(const char *name, int max_cpus, long max_memory)
     cgroup->path = malloc(path_len);
     if (!cgroup->path)
     {
-        perror("malloc");
+        fprintf(stderr, "Error: malloc failed: %s\n", strerror(errno));
         free(cgroup->name);
         free(cgroup);
         return NULL;
@@ -56,7 +55,7 @@ CGroup *cgroup_create(const char *name, int max_cpus, long max_memory)
 
     if (mkdir(cgroup->path, 0755) == -1 && errno != EEXIST)
     {
-        perror("mkdir");
+        fprintf(stderr, "Error: mkdir failed: %s\n", strerror(errno));
         cgroup_free(cgroup);
         return NULL;
     }
@@ -73,7 +72,7 @@ int cgroup_add_process(CGroup *cgroup, pid_t pid)
     char *path_to_proc = malloc(path_len);
     if (!path_to_proc)
     {
-        perror("malloc");
+        fprintf(stderr, "Error: malloc failed: %s\n", strerror(errno));
         return EXIT_FAILURE;
     }
 
@@ -104,7 +103,7 @@ int cgroup_apply_limits(CGroup *cgroup)
     char *path_to_cpu_max = malloc(path_len);
     if (!path_to_cpu_max)
     {
-        perror("malloc");
+        fprintf(stderr, "Error: malloc failed: %s\n", strerror(errno));
         return EXIT_FAILURE;
     }
 
@@ -121,7 +120,7 @@ int cgroup_apply_limits(CGroup *cgroup)
     char *path_to_memory_max = malloc(path_len);
     if (!path_to_memory_max)
     {
-        perror("malloc");
+        fprintf(stderr, "Error: malloc failed: %s\n", strerror(errno));
         free(path_to_cpu_max);
         return EXIT_FAILURE;
     }
@@ -164,7 +163,7 @@ int cgroup_destroy(CGroup *cgroup)
 
     if (rmdir(cgroup->path) == -1 && errno != ENOENT)
     {
-        perror("rmdir");
+        fprintf(stderr, "Error: rmdir failed: %s\n", strerror(errno));
         return EXIT_FAILURE;
     }
 

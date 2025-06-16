@@ -63,10 +63,10 @@ Options:
 
 Examples:
   # Run a basic container
-  sudo tinydocker -- /bin/bash
+  sudo tinydocker -- /bin/sh
 
   # Run with custom hostname and resource limits
-  sudo tinydocker -h myapp -c 2 -m 1024 -- /bin/bash
+  sudo tinydocker -h myapp -c 2 -m 1024 -- /bin/sh
 ```
 
 ## How It Works

@@ -99,6 +99,9 @@ int parse_args(int argc, char *argv[], ContainerArgs *args)
         // No command specified, use default
         static char *default_cmd[] = { "/bin/sh", NULL };
         args->process = default_cmd;
+        fprintf(
+            stderr,
+            "Notice: No command specified, using default shell (/bin/sh)\n");
     }
     else
     {

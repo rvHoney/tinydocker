@@ -13,7 +13,6 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-#define STACK_SIZE (1024 * 1024)
 char child_stack[STACK_SIZE];
 
 int init_container(void *arg)
@@ -23,14 +22,14 @@ int init_container(void *arg)
     // Set hostname
     if (sethostname(args->hostname, strlen(args->hostname)) != 0)
     {
-        perror("sethostname");
+        fprintf(stderr, "Error: sethostname failed: %s\n", strerror(errno));
         return EXIT_FAILURE;
     }
 
     // Change root directory
     if (chroot(args->rootfs) != 0)
     {
-        fprintf(stderr, "chroot failed: %s\n", strerror(errno));
+        fprintf(stderr, "Error: chroot failed: %s\n", strerror(errno));
         fprintf(stderr,
                 "Make sure the root filesystem exists and contains necessary "
                 "files\n");
@@ -40,14 +39,14 @@ int init_container(void *arg)
     // Change to root directory
     if (chdir("/") != 0)
     {
-        perror("chdir");
+        fprintf(stderr, "Error: chdir failed: %s\n", strerror(errno));
         return EXIT_FAILURE;
     }
 
     // Mount /proc
     if (mount("proc", "/proc", "proc", 0, NULL) != 0)
     {
-        perror("mount /proc");
+        fprintf(stderr, "Error: mount /proc failed: %s\n", strerror(errno));
         return EXIT_FAILURE;
     }
 
@@ -55,10 +54,11 @@ int init_container(void *arg)
     pid_t pid = fork();
     if (pid < 0)
     {
-        perror("fork");
+        fprintf(stderr, "Error: fork failed: %s\n", strerror(errno));
         if (umount2("/proc", MNT_DETACH) != 0)
         {
-            perror("umount2 /proc");
+            fprintf(stderr, "Error: umount2 /proc failed: %s\n",
+                    strerror(errno));
         }
         return EXIT_FAILURE;
     }
@@ -72,7 +72,8 @@ int init_container(void *arg)
                     strerror(errno));
             if (umount2("/proc", MNT_DETACH) != 0)
             {
-                perror("umount2 /proc");
+                fprintf(stderr, "Error: umount2 /proc failed: %s\n",
+                        strerror(errno));
             }
             return EXIT_FAILURE;
         }
@@ -87,7 +88,8 @@ int init_container(void *arg)
         // Unmount /proc after child process ends
         if (umount2("/proc", MNT_DETACH) != 0)
         {
-            perror("umount2 /proc");
+            fprintf(stderr, "Error: umount2 /proc failed: %s\n",
+                    strerror(errno));
         }
 
         return WIFEXITED(status) ? WEXITSTATUS(status) : EXIT_FAILURE;
