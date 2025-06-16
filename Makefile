@@ -1,27 +1,30 @@
 CC = gcc
-CFLAGS = -std=c11 -Wall -Wextra -Wvla -pedantic -Werror
+CFLAGS = -Wall -Wextra -g
+LDFLAGS =
+
 SRC_DIR = src
 OBJ_DIR = build/obj
-BIN_DIR = build
-BIN = $(BIN_DIR)/tinydocker
-SRC = $(wildcard $(SRC_DIR)/*.c)
-OBJ = $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(SRC))
+BIN_DIR = build/bin
 
-all: $(BIN)
+SRCS = $(wildcard $(SRC_DIR)/*.c) \
+       $(wildcard $(SRC_DIR)/container/*.c) \
+       $(wildcard $(SRC_DIR)/cgroup/*.c) \
+       $(wildcard $(SRC_DIR)/utils/*.c)
 
-debug: CFLAGS += -g -O0
-debug: $(BIN)
+OBJS = $(SRCS:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.o)
+TARGET = $(BIN_DIR)/tinydocker
 
-$(BIN): $(OBJ) | $(BIN_DIR)
-	$(CC) $(CFLAGS) -o $@ $^
+.PHONY: all clean
 
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c | $(OBJ_DIR)
+all: $(TARGET)
+
+$(TARGET): $(OBJS)
+	@mkdir -p $(BIN_DIR)
+	$(CC) $(OBJS) -o $@ $(LDFLAGS)
+
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
+	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-$(BIN_DIR) $(OBJ_DIR):
-	mkdir -p $@
-
 clean:
-	rm -rf build/
-
-.PHONY: all clean debug
+	rm -rf $(OBJ_DIR) $(BIN_DIR)
