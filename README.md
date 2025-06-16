@@ -76,8 +76,8 @@ Here is the planned progression for tinydocker:
 
 ### Resource control
 
-- 🔜 Create and apply a cgroup to limit memory/CPU
-- 🔜 Improve cgroup abstraction (modular code)
+- ✅ Create and apply a cgroup to limit memory/CPU
+- 🛠 Improve cgroup abstraction (modular code)
 
 ### Networking
 
