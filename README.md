@@ -1,64 +1,86 @@
-# 🐟 tinydocker
+# 🐟 TinyDocker
 
-**tinydocker** is an educational project written in **C11**, designed to reproduce the core features of a Linux container from scratch, without using Docker.
+A minimal container runtime implementation for educational purposes. This project demonstrates the core concepts of containerization by implementing a simple container runtime using Linux namespaces and cgroups.
 
-This project implements:
+## Project Goals
 
-- Create and isolate a containerized process with its own file system, network, and process namespace
-- Limit RAM and CPU usage for the container
+- Educational: Understand how container runtimes work under the hood
+- Minimal: Focus on core containerization features
+- Clear: Well-documented and easy to understand code
+- Practical: Actually run containers with resource limits
 
-## Build
+## Technical Stack
+
+- **OS**: Tested on Ubuntu 22.04 LTS
+- **Cgroups**: v2 (using unified hierarchy)
+- **Namespaces**: UTS, PID, Mount, Network, IPC
+- **Language**: C11
+- **Build System**: Make
+
+## Quick Start
+
+### Prerequisites
+
+- Ubuntu 22.04 LTS
+- GCC compiler
+- Make
+- Root privileges (for running containers)
+
+### Building
 
 ```bash
-make debug
+# Clone the repository
+git clone https://github.com/yourusername/tinydocker.git
+cd tinydocker
+
+# Build the project
+make
 ```
 
-## Run
+The binary will be available at `build/bin/tinydocker`.
+
+### Running
 
 ```bash
-sudo ./build/bin/tinydocker [-h hostname] [-r rootfs] [--cpus num] [--memory size] [-- command [args...]]
+# Run a container with default settings
+sudo ./build/bin/tinydocker -- /bin/bash
+
+# Run with custom settings
+sudo ./build/bin/tinydocker -h mycontainer -c 2 -m 512 -- /bin/bash
 ```
 
-⚠️ Note: The `./rootfs` directory must exist alongside the binary when running the container,
-as the root filesystem path is currently hard-coded in the code with `chroot("./rootfs")`.
-Future versions may allow specifying a custom rootfs path via command-line options.
+## Command Line Options
 
-> Requires a Linux system with support for namespaces and cgroups (v1 or v2) and a minimal root filesystem inside the `rootfs/` directory (e.g., based on BusyBox).
+```
+Usage: tinydocker [OPTIONS] -- COMMAND [ARGS...]
 
-## Project structure
+Options:
+  -h, --hostname NAME   Set container hostname (default: container)
+  -r, --rootfs PATH     Set root filesystem path (default: ./rootfs)
+  -c, --cpus N          Set maximum number of CPUs (default: 1)
+  -m, --memory SIZE     Set maximum memory in MB (default: 512)
+  --help                Display this help message
 
-``` plaintext
-tinydocker/
-├── src/ # Source code (main, namespaces, cgroups)
-├── include/ # Header files
-├── rootfs/ # Minimal root filesystem
-├── build/ # Compiled binaries and objects
-├── Makefile # Build rules
-├── .gitignore # Ignored files
-└── README.md # This file
+Examples:
+  # Run a basic container
+  sudo tinydocker -- /bin/sh
+
+  # Run with custom hostname and resource limits
+  sudo tinydocker -h myapp -c 2 -m 1024 -- /bin/sh
 ```
 
-## Project goals
+## How It Works
 
-- Learn how Linux containers work under the hood
-- Experiment with namespaces, cgroups, and process isolation
-- Build a simple, self-contained container runtime in C
+TinyDocker uses Linux namespaces and cgroups to create isolated containers:
 
-> This project is for educational purposes only. It is **not** production-ready or secure by design.
+- **Namespaces**: Provides isolation for:
+  - UTS: Hostname and domain name
+  - PID: Process tree
+  - Mount: Filesystem mounts
 
----
-
-## Work in progress
-
-This project is a **work in progress** and its internal structure will evolve significantly over time.
-
-Expect:
-
-- Breaking changes in folder layout
-- Refactors as features are added
-- Shifts in responsibilities between files (e.g., CLI vs container logic)
-
-Feel free to explore, but don’t rely on stability just yet.
+- **Cgroups**: Manages resource limits:
+  - CPU: Number of available CPUs
+  - Memory: Maximum memory usage
 
 ## Roadmap
 
@@ -70,40 +92,60 @@ Here is the planned progression for tinydocker:
 
 - ✅ Create a containerized process and namespace isolation
 - ✅ Change hostname from inside the container
-- ✅ Mount `/proc` inside the container
+- ✅ Mount /proc inside the container
 - ✅ Implement chroot to a minimal rootfs
-- ✅ Execute `/bin/sh` using a new process
+- ✅ Execute /bin/sh using a new process
 
 ### Resource control
 
 - ✅ Create and apply a cgroup to limit memory/CPU
-- 🛠 Improve cgroup abstraction (modular code)
+- ✅ Improve cgroup abstraction (modular code)
 
 ### Networking
 
-- 🔜 Create a `veth` pair
-- 🔜 Connect the container to a Linux bridge
-- 🔜 Assign a static IP
-- 🔜 Set up NAT with `iptables`
+- 🛠️ Create a veth pair
+- 🛠️ Connect the container to a Linux bridge
+- 🛠️ Assign a static IP
+- 🛠️ Set up NAT with iptables
 
 ### Filesystem & volumes
 
-- 🔜 Support `-v /host:/container` to mount directories
+- 🔜 Support -v /host:/container to mount directories
 
 ### Image loading
 
-- 🔜 Load a `.tar` image (like busybox.tar) and extract it to rootfs
+- 🔜 Load a .tar image (like busybox.tar) and extract it to rootfs
 
 ### CLI & usability
 
 - 🛠️ Add a CLI with argument parsing (container name, resources, image...)
-- 🛠️ Add `--help` and error messages
+- 🛠️ Add --help and error messages
 
 ### Multi-container & images
 
 - 🔜 Manage multiple containers
 - 🔜 Local image storage (basic Docker-like registry)
 
----
+> This roadmap may evolve based on experiments and design decisions.
 
-This roadmap may evolve based on experiments and design decisions.
+## Learning Resources
+
+- [Linux Namespaces](https://man7.org/linux/man-pages/man7/namespaces.7.html)
+- [Control Groups v2](https://www.kernel.org/doc/html/latest/admin-guide/cgroup-v2.html)
+- [clone(2) System Call](https://man7.org/linux/man-pages/man2/clone.2.html)
+
+## Limitations
+
+- Educational purpose only
+- Basic resource management
+- No networking support (coming soon)
+- No image management (coming soon)
+- Requires root privileges
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
