@@ -3,22 +3,50 @@
 
 #include <sys/types.h>
 
+typedef struct
+{
+    char *name;
+    char *path;
+    int max_cpus;
+    long max_memory;
+    pid_t pid;
+} CGroup;
+
 /**
- * @brief Initialize cgroup with CPU and memory limits
- * @param pid Process ID to add to cgroup
- * @param group_name Name of the cgroup
+ * @brief Create a new cgroup
+ * @param name Name of the cgroup
  * @param max_cpus Maximum number of CPUs (0 for unlimited)
  * @param max_memory Maximum memory in bytes
+ * @return Pointer to new CGroup structure, NULL on failure
+ */
+CGroup *cgroup_create(const char *name, int max_cpus, long max_memory);
+
+/**
+ * @brief Add a process to a cgroup
+ * @param cgroup Pointer to CGroup structure
+ * @param pid Process ID to add
  * @return EXIT_SUCCESS on success, EXIT_FAILURE on failure
  */
-int init_cgroup(const pid_t pid, const char *group_name, int max_cpus,
-                long max_memory);
+int cgroup_add_process(CGroup *cgroup, pid_t pid);
+
+/**
+ * @brief Apply resource limits to a cgroup
+ * @param cgroup Pointer to CGroup structure
+ * @return EXIT_SUCCESS on success, EXIT_FAILURE on failure
+ */
+int cgroup_apply_limits(CGroup *cgroup);
 
 /**
  * @brief Destroy a cgroup
- * @param group_name Name of the cgroup to destroy
+ * @param cgroup Pointer to CGroup structure
  * @return EXIT_SUCCESS on success, EXIT_FAILURE on failure
  */
-int destroy_cgroup(const char *group_name);
+int cgroup_destroy(CGroup *cgroup);
+
+/**
+ * @brief Free a CGroup structure
+ * @param cgroup Pointer to CGroup structure
+ */
+void cgroup_free(CGroup *cgroup);
 
 #endif // TINYDOCKER_CGROUP_H
