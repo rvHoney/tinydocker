@@ -2,6 +2,9 @@
 /build/
 *.o
 
+# Documentation
+docs/
+
 # Editor files
 .vscode/
 .idea/

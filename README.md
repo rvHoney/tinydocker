@@ -1,4 +1,4 @@
-# 🐟 TinyDocker
+# 🐟 tinydocker
 
 A minimal container runtime implementation for educational purposes. This project demonstrates the core concepts of containerization by implementing a simple container runtime using Linux namespaces and cgroups.
 
@@ -71,7 +71,7 @@ Examples:
 
 ## How It Works
 
-TinyDocker uses Linux namespaces and cgroups to create isolated containers:
+tinydocker uses Linux namespaces and cgroups to create isolated containers:
 
 - **Namespaces**: Provides isolation for:
   - UTS: Hostname and domain name
