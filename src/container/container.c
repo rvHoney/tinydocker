@@ -43,6 +43,14 @@ int init_container(void *arg)
         return EXIT_FAILURE;
     }
 
+    // Create /proc directory if it doesn't exist
+    if (mkdir("/proc", 0755) != 0 && errno != EEXIST)
+    {
+        fprintf(stderr, "Error: Failed to create /proc directory: %s\n",
+                strerror(errno));
+        return EXIT_FAILURE;
+    }
+
     // Mount /proc
     if (mount("proc", "/proc", "proc", 0, NULL) != 0)
     {

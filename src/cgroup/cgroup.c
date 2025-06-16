@@ -1,3 +1,4 @@
+#define _GNU_SOURCE
 #include "cgroup.h"
 
 #include <errno.h>
