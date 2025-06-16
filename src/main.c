@@ -51,7 +51,12 @@ int init_container(void *arg)
     }
 
     printf("🔗 Mounting proc filesystem...\n\n");
-    mkdir("/proc", 0755);
+    if (mkdir("/proc", 0755) == -1 && errno != EEXIST)
+    {
+        perror("mkdir /proc failed");
+        return EXIT_FAILURE;
+    }
+
     if (mount("proc", "/proc", "proc", 0, NULL) == -1)
     {
         perror("mount proc failed");
@@ -116,6 +121,7 @@ int init_cgroup(const pid_t pid, const char *group_name, int max_cpus,
     if (!path_to_cgroup)
     {
         perror("malloc");
+        free(path_to_cgroup);
         return EXIT_FAILURE;
     }
 
@@ -124,6 +130,7 @@ int init_cgroup(const pid_t pid, const char *group_name, int max_cpus,
     if (mkdir(path_to_cgroup, 0755) == -1 && errno != EEXIST)
     {
         perror("mkdir");
+        free(path_to_cgroup);
         return EXIT_FAILURE;
     }
 
