@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/mount.h>
+#include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
@@ -34,6 +35,22 @@ int main(int argc, char *argv[])
     printf("├─  Process: %s\n", args.process[0]);
     printf("├─  Max CPUs: %d\n", args.max_cpus);
     printf("└─  Max Memory: %ldMB\n\n", args.max_memory / (1024 * 1024));
+
+    // Check if rootfs exists and is a directory
+    struct stat st;
+    if (stat(args.rootfs, &st) != 0)
+    {
+        fprintf(stderr, "Error: Root filesystem '%s' not found\n", args.rootfs);
+        fprintf(stderr,
+                "Please create a root filesystem directory or specify a "
+                "different path with -r\n");
+        return EXIT_FAILURE;
+    }
+    if (!S_ISDIR(st.st_mode))
+    {
+        fprintf(stderr, "Error: '%s' is not a directory\n", args.rootfs);
+        return EXIT_FAILURE;
+    }
 
     printf("🚀 Starting container...\n");
     printf("\n");
@@ -100,7 +117,8 @@ int main(int argc, char *argv[])
     if (WIFEXITED(status))
     {
         int exit_code = WEXITSTATUS(status);
-        if (exit_code != EXIT_SUCCESS)
+        // Ignore the tty process group error (exit code 2)
+        if (exit_code != EXIT_SUCCESS && exit_code != 2)
         {
             fprintf(stderr, "Container process exited with code %d\n",
                     exit_code);

@@ -9,11 +9,12 @@ extern char child_stack[STACK_SIZE];
 
 typedef struct
 {
-    char *hostname;
-    char *rootfs;
-    char **process;
+    const char *hostname;
+    const char *rootfs;
     int max_cpus;
-    long max_memory; // in bytes
+    long max_memory;
+    char **process;
+    char **process_args;
 } ContainerArgs;
 
 /**

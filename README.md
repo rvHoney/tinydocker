@@ -13,8 +13,8 @@ A minimal container runtime implementation for educational purposes. This projec
 
 - **OS**: Tested on Ubuntu 22.04 LTS
 - **Cgroups**: v2 (using unified hierarchy)
-- **Namespaces**: UTS, PID, Mount
-- **Language**: C99
+- **Namespaces**: UTS, PID, Mount, Network, IPC
+- **Language**: C11
 - **Build System**: Make
 
 ## Quick Start
@@ -137,10 +137,9 @@ Here is the planned progression for tinydocker:
 ## Limitations
 
 - Educational purpose only
-- Limited namespace support
 - Basic resource management
-- No networking support
-- No image management
+- No networking support (coming soon)
+- No image management (coming soon)
 - Requires root privileges
 
 ## Contributing

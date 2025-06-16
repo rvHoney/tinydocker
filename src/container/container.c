@@ -13,63 +13,51 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
+#define STACK_SIZE (1024 * 1024)
 char child_stack[STACK_SIZE];
 
 int init_container(void *arg)
 {
     ContainerArgs *args = (ContainerArgs *)arg;
 
-    if (sethostname(args->hostname, strlen(args->hostname)) == -1)
+    // Set hostname
+    if (sethostname(args->hostname, strlen(args->hostname)) != 0)
     {
-        perror("sethostname failed");
+        perror("sethostname");
         return EXIT_FAILURE;
     }
 
-    if (chdir(args->rootfs) == -1 || chroot(".") == -1)
+    // Mount /proc
+    if (mount("proc", "/proc", "proc", 0, NULL) != 0)
     {
-        perror("chroot failed");
+        perror("mount /proc");
         return EXIT_FAILURE;
     }
 
-    if (chdir("/") == -1)
+    // Change root directory
+    if (chroot(args->rootfs) != 0)
     {
-        perror("chdir failed");
+        fprintf(stderr, "chroot failed: %s\n", strerror(errno));
+        fprintf(stderr,
+                "Make sure the root filesystem exists and contains necessary "
+                "files\n");
         return EXIT_FAILURE;
     }
 
-    if (mkdir("/proc", 0755) == -1 && errno != EEXIST)
+    // Change to root directory
+    if (chdir("/") != 0)
     {
-        perror("mkdir /proc failed");
+        perror("chdir");
         return EXIT_FAILURE;
     }
 
-    if (mount("proc", "/proc", "proc", 0, NULL) == -1)
+    // Execute the command
+    if (execvp(args->process[0], args->process) != 0)
     {
-        perror("mount proc failed");
+        fprintf(stderr, "Failed to execute %s: %s\n", args->process[0],
+                strerror(errno));
         return EXIT_FAILURE;
     }
 
-    pid_t shell_pid = fork();
-    if (shell_pid == -1)
-    {
-        perror("fork");
-        return EXIT_FAILURE;
-    }
-
-    if (shell_pid == 0)
-    {
-        execvp(args->process[0], args->process);
-        perror("execvp failed");
-        exit(EXIT_FAILURE);
-    }
-    else
-    {
-        waitpid(shell_pid, NULL, 0);
-        if (umount2("/proc", MNT_DETACH) == -1)
-        {
-            perror("umount /proc");
-            return EXIT_FAILURE;
-        }
-        return EXIT_SUCCESS;
-    }
+    return EXIT_SUCCESS;
 }
