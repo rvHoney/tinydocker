@@ -137,6 +137,10 @@ int init_cgroup(const pid_t pid, const char *group_name, int max_cpus,
     if (!path_to_cpu_max || !path_to_memory_max || !path_to_proc)
     {
         perror("malloc");
+        free(path_to_cpu_max);
+        free(path_to_memory_max);
+        free(path_to_proc);
+        free(path_to_cgroup);
         return EXIT_FAILURE;
     }
 
@@ -151,7 +155,7 @@ int init_cgroup(const pid_t pid, const char *group_name, int max_cpus,
     {
         if (write_str_to_file(path_to_cpu_max, "%d %d\n", max_cpus * 100000,
                               100000)
-            == -1)
+            == EXIT_FAILURE)
         {
             perror("write_str_to_file");
             free(path_to_cpu_max);
@@ -163,7 +167,7 @@ int init_cgroup(const pid_t pid, const char *group_name, int max_cpus,
     }
     else
     {
-        if (write_str_to_file(path_to_cpu_max, "max 100000\n") == -1)
+        if (write_str_to_file(path_to_cpu_max, "max 100000\n") == EXIT_FAILURE)
         {
             perror("write_str_to_file");
             free(path_to_cpu_max);
@@ -175,7 +179,8 @@ int init_cgroup(const pid_t pid, const char *group_name, int max_cpus,
     }
 
     printf("💾 Setting memory limit to %ld bytes\n", max_memory);
-    if (write_str_to_file(path_to_memory_max, "%ld\n", max_memory) == -1)
+    if (write_str_to_file(path_to_memory_max, "%ld\n", max_memory)
+        == EXIT_FAILURE)
     {
         perror("write_str_to_file");
         free(path_to_cpu_max);
@@ -186,7 +191,7 @@ int init_cgroup(const pid_t pid, const char *group_name, int max_cpus,
     }
 
     printf("👥 Adding PID %d to cgroup\n\n", pid);
-    if (write_str_to_file(path_to_proc, "%d\n", pid) == -1)
+    if (write_str_to_file(path_to_proc, "%d\n", pid) == EXIT_FAILURE)
     {
         perror("write_str_to_file");
         free(path_to_cpu_max);
@@ -317,7 +322,8 @@ int main(int argc, char *argv[])
     snprintf(group_name, strlen("tinydocker-") + strlen(args.hostname) + 1,
              "tinydocker-%s", args.hostname);
 
-    if (init_cgroup(pid, group_name, args.max_cpus, args.max_memory) == -1)
+    if (init_cgroup(pid, group_name, args.max_cpus, args.max_memory)
+        == EXIT_FAILURE)
     {
         fprintf(stderr, "Failed to set up cgroup for PID %ld\n", (long)pid);
         exit(EXIT_FAILURE);
