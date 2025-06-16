@@ -27,13 +27,6 @@ int init_container(void *arg)
         return EXIT_FAILURE;
     }
 
-    // Mount /proc
-    if (mount("proc", "/proc", "proc", 0, NULL) != 0)
-    {
-        perror("mount /proc");
-        return EXIT_FAILURE;
-    }
-
     // Change root directory
     if (chroot(args->rootfs) != 0)
     {
@@ -48,6 +41,13 @@ int init_container(void *arg)
     if (chdir("/") != 0)
     {
         perror("chdir");
+        return EXIT_FAILURE;
+    }
+
+    // Mount /proc
+    if (mount("proc", "/proc", "proc", 0, NULL) != 0)
+    {
+        perror("mount /proc");
         return EXIT_FAILURE;
     }
 

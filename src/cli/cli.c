@@ -51,7 +51,6 @@ int parse_args(int argc, char *argv[], ContainerArgs *args)
     args->max_cpus = DEFAULT_CPUS;
     args->max_memory = DEFAULT_MEMORY;
     args->process = NULL;
-    args->process_args = NULL;
 
     int opt;
     int option_index = 0;
@@ -100,12 +99,10 @@ int parse_args(int argc, char *argv[], ContainerArgs *args)
         // No command specified, use default
         static char *default_cmd[] = { "/bin/sh", NULL };
         args->process = default_cmd;
-        args->process_args = default_cmd;
     }
     else
     {
         args->process = &argv[optind];
-        args->process_args = &argv[optind];
     }
 
     return EXIT_SUCCESS;

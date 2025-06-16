@@ -1,6 +1,6 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -std=c11 -DVERSION=\"$(VERSION)\"
-VERSION = 0.1.0
+VERSION = 0.2.0
 
 SRC_DIR = src
 BUILD_DIR = build
